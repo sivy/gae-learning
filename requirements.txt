@@ -1,0 +1,12 @@
+# basics so the app runs in tests
+webapp2
+Jinja2
+
+# testing
+nose
+NoseGAE
+webtest
+
+# misc
+markupsafe
+PIL

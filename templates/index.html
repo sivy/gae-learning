@@ -1,10 +1,15 @@
 <html>
     <head>
-        <title>{{ title }}</title>
+        <title>Guestbook</title>
     </head>
     <body>
+        <div style="text-align: right">{{ user }}{% include 'partials/user.html' %}</div>
         {% for greeting in greetings %}
-        <h4><cite>{{ greeting.author }}</cite> wrote:</h4>
+            {% if greeting.author %}
+        <h4>{{ greeting.author }} wrote:</h4>
+            {% else %}
+        <h4>Anonymous wrote:</h4>
+            {% endif %}
         <blockquote>
             {{ greeting.content}}
         </blockquote>
@@ -12,12 +17,13 @@
 
         <hr>
 
-        <form action="/sign?%s" method="post">
+        <form action="/sign?guestbook_name={{ guestbook_name }}" method="post">
             <div><textarea name="content" rows="3" cols="60"></textarea></div>
-            <div><input type="submit" value="Sign Guestbook"></div>
+            <div><input type="submit" value="Sign {{ guestbook_name }} Guestbook"></div>
+            <input type="hidden" value="{{ guestbook_name }}" name="guestbook_name">
           </form>
           <hr>
-          <form>Guestbook name: <input value="%s" name="guestbook_name">
+          <form>Guestbook name: <input value="{{ guestbook_name }}" name="guestbook_name">
           <input type="submit" value="switch"></form>
 
     </body>
