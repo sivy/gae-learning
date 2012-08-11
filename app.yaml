@@ -1,5 +1,5 @@
 application: sivygae
-version: 3
+version: 4
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -8,6 +8,12 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
+
+- url: /images
+  static_dir: images
+
+- url: /stylesheets
+  static_dir: stylesheets
 
 - url: /.*
   script: main.app
