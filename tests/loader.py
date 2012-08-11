@@ -5,6 +5,8 @@ from datetime import datetime
 
 from main import Greeting, guestbook_key
 
+from google.appengine.ext import testbed
+
 DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 
@@ -78,6 +80,10 @@ class FixtureLoader(object):
 
 class TestLoader(object):
     def setUp(self):
+        self.testbed = testbed.Testbed()
+        self.testbed.activate()
+        self.testbed.init_datastore_v3_stub()
+
         self.loader = FixtureLoader()
         self.loader.load_data()
 
@@ -104,3 +110,6 @@ class TestLoader(object):
         eq_(greeting2.author, 'testuser@example.com')
         eq_(greeting2.content, 'bye')
         eq_(greeting2.date, datetime.strptime('1971-06-29 04:13:00', DATE_FMT))
+
+    def tearDown(self):
+        self.testbed.deactivate()
