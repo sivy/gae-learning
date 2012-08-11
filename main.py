@@ -18,8 +18,11 @@
 import webapp2
 import jinja2
 import os
+from datetime import datetime
 
 from django.utils import simplejson as json
+
+DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname('__file__')
@@ -76,7 +79,6 @@ class Guestbook(webapp2.RequestHandler):
         guestbook_name = self.request.get('guestbook_name')
         greeting = Greeting(parent=guestbook_key(guestbook_name))
 
-        print repr(greeting)
         if users.get_current_user():
             greeting.author = users.get_current_user().nickname()
 
@@ -93,12 +95,13 @@ class GuestbookAPI(webapp2.RequestHandler):
                                 "ORDER BY date DESC LIMIT 10",
                                 guestbook_key())
 
+        # this ought to be a lot smarter
         d = []
-        for greeting in greetings.fetch():
+        for greeting in greetings.fetch(10):
             d.append({
                 'content': greeting.content,
                 'author': greeting.author,
-                'datetime': greeting.date
+                'datetime': datetime.strftime(greeting.date, DATE_FMT)
                 })
 
         self.response.headers['Content-Type'] = 'application/json'
@@ -107,5 +110,6 @@ class GuestbookAPI(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     (r'/sign', Guestbook),
+    (r'/api/greetings', GuestbookAPI),
     (r'/([\w_]+)', MainPage)
 ], debug=True)
