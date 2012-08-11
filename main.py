@@ -35,7 +35,7 @@ class Greeting(db.Model):
 
 
 def guestbook_key(guestbook_name=None):
-    return db.Key.from_path('Guestbook', guestbook_name or 'default_guestbook')
+    return db.Key.from_path('Guestbook', guestbook_name or 'stremor')
 
 
 class MainPage(webapp2.RequestHandler):
