@@ -1,9 +1,23 @@
 <html>
     <head>
         <title>Guestbook</title>
+        <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
     </head>
     <body>
+        <img style="display: block; margin-left: -30px" src="/images/guestbook.png" />
         <div style="text-align: right">{{ user }}{% include 'partials/user.html' %}</div>
+
+        <form action="/sign?guestbook_name={{ guestbook_name }}" method="post">
+            <div><textarea name="content" rows="3" cols="60"></textarea></div>
+            <div><input type="submit" value="Sign {{ guestbook_name }} Guestbook"></div>
+            <input type="hidden" value="{{ guestbook_name }}" name="guestbook_name">
+          </form>
+          <hr>
+          <form>Guestbook name: <input value="{{ guestbook_name }}" name="guestbook_name">
+          <input type="submit" value="switch"></form>
+
+        <hr />
+
         {% for greeting in greetings %}
             {% if greeting.author %}
         <h4>{{ greeting.author }} wrote:</h4>
@@ -14,17 +28,6 @@
             {{ greeting.content}}
         </blockquote>
         {% endfor %}
-
-        <hr>
-
-        <form action="/sign?guestbook_name={{ guestbook_name }}" method="post">
-            <div><textarea name="content" rows="3" cols="60"></textarea></div>
-            <div><input type="submit" value="Sign {{ guestbook_name }} Guestbook"></div>
-            <input type="hidden" value="{{ guestbook_name }}" name="guestbook_name">
-          </form>
-          <hr>
-          <form>Guestbook name: <input value="{{ guestbook_name }}" name="guestbook_name">
-          <input type="submit" value="switch"></form>
 
     </body>
 </html>
