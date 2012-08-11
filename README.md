@@ -61,4 +61,4 @@ class TestMyClass(object):
 
 ### Followup Links:
 
-Still need to grok how the testbad datastore handles indexes: >http://alex.cloudware.it/2012/02/app-engine-datastore-testbed-with.html>
+Still need to grok how the testbad datastore handles indexes: <http://alex.cloudware.it/2012/02/app-engine-datastore-testbed-with.html>
