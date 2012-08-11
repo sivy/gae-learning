@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import webapp2
-# import cgi
-import urllib
 import jinja2
 import os
+
+from django.utils import simplejson as json
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname('__file__')
@@ -39,9 +40,7 @@ def guestbook_key(guestbook_name=None):
 
 
 class MainPage(webapp2.RequestHandler):
-    def get(self):
-
-        guestbook_name = self.request.get('guestbook_name')  # or default_guestbook
+    def get(self, guestbook_name='stremor'):
 
         # SELECT * FROM is a given when used in Model context
         greetings = Greeting.gql("WHERE ANCESTOR IS :1 "
@@ -67,6 +66,8 @@ class MainPage(webapp2.RequestHandler):
         }
 
         template = jinja_environment.get_template('index.html')
+
+        self.response.headers['Content-Type'] = 'text/html'
         self.response.out.write(template.render(template_values))
 
 
@@ -75,7 +76,7 @@ class Guestbook(webapp2.RequestHandler):
         guestbook_name = self.request.get('guestbook_name')
         greeting = Greeting(parent=guestbook_key(guestbook_name))
 
-        print "greeting: "
+        print repr(greeting)
         if users.get_current_user():
             greeting.author = users.get_current_user().nickname()
 
@@ -83,8 +84,28 @@ class Guestbook(webapp2.RequestHandler):
         greeting.put()
 
         # redirect to home page
-        self.redirect('/?' + urllib.urlencode({'guestbook_name': guestbook_name}))
+        self.redirect('/%s' % guestbook_name)
 
-app = webapp2.WSGIApplication([('/', MainPage),
-                              ('/sign', Guestbook)],
-                              debug=True)
+
+class GuestbookAPI(webapp2.RequestHandler):
+    def get(self):
+        greetings = Greeting.gql("WHERE ANCESTOR IS :1 "
+                                "ORDER BY date DESC LIMIT 10",
+                                guestbook_key())
+
+        d = []
+        for greeting in greetings.fetch():
+            d.append({
+                'content': greeting.content,
+                'author': greeting.author,
+                'datetime': greeting.date
+                })
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(d))
+
+
+app = webapp2.WSGIApplication([
+    (r'/sign', Guestbook),
+    (r'/([\w_]+)', MainPage)
+], debug=True)

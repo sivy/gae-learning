@@ -17,7 +17,7 @@ class TestIndex(object):
         self.testbed.init_user_stub()
 
     def test_index(self):
-        response = self.testapp.get('/')
+        response = self.testapp.get('/stremor')
         assert 'Guestbook' in str(response)
 
     def test_loggedin_index(self):
@@ -25,7 +25,7 @@ class TestIndex(object):
         os.environ['USER_ID'] = '123'
         os.environ['AUTH_DOMAIN'] = 'testbed'
 
-        response = self.testapp.get('/')
+        response = self.testapp.get('/stremor')
 
         ok_('Logout' in str(response))
         ok_('testuser' in str(response))
@@ -54,6 +54,10 @@ class TestGreetings(object):
         ok_(greetings.count() == 1, 'There should be 1 Greeting object')
 
     def test_loggedin_post_greeting(self):
+        os.environ['USER_EMAIL'] = 'testuser@example.com'
+        os.environ['USER_ID'] = '123'
+        os.environ['AUTH_DOMAIN'] = 'testbed'
+
         self.testapp.post('/sign', {'guestbook_name': 'test', 'content': 'hi'})
 
         greetings = Greeting.gql("WHERE ANCESTOR IS :1 "
@@ -61,7 +65,10 @@ class TestGreetings(object):
                                   guestbook_key('test'))
         greeting = greetings.fetch(1)[0]  # latest
 
-        ok_(greeting.content == 'hi', 'greeting content should be \'hi\'')
+        eq_(greeting.content, 'hi',
+            'greeting content should be \'hi\'')
+        eq_(greeting.author, 'testuser@example.com',
+            'author content should be \'testuser@example.com\'')
 
     def tearDown(self):
         self.testbed.deactivate()
