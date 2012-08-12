@@ -110,6 +110,6 @@ class GuestbookAPI(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     (r'/sign', Guestbook),
-    (r'/api/greetings', GuestbookAPI),
+    (r'/api/greetings.json', GuestbookAPI),
     (r'/([\w_]+)', MainPage)
 ], debug=True)
