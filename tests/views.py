@@ -1,13 +1,15 @@
 import os
+from django.utils import simplejson as json
 
 from webtest import TestApp
-from main import app
-
-from models import guestbook_key, Greeting
-
 from nose.tools import eq_, ok_
 
 from google.appengine.ext import testbed
+
+from main import app
+from models import guestbook_key, Greeting
+
+from loader import FixtureLoader
 
 
 class TestIndex(object):
@@ -75,3 +77,24 @@ class TestGreetings(object):
 
     def tearDown(self):
         self.testbed.deactivate()
+
+
+class TestAPI(object):
+
+    def setUp(self):
+        self.testapp = TestApp(app)
+        self.testbed = testbed.Testbed()
+        self.testbed.activate()
+        self.testbed.init_datastore_v3_stub()
+
+        self.loader = FixtureLoader()
+        self.loader.load_data()
+
+    def test_get_greetings(self):
+        response = self.testapp.get('/api/greetings.json')
+
+        eq_(response.status, '200 OK')
+        eq_(response.headers.get('Content-Type'), 'application/json')
+
+        response_data = json.loads(response.body)
+        eq_(len(response_data), 2, 'Greeting API should return 2 objects')

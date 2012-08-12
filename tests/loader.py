@@ -1,13 +1,11 @@
 import os
 from django.utils import simplejson as json
 from nose.tools import ok_, eq_
-from datetime import datetime
+import datetime
 
-from models import Greeting, guestbook_key
+from models import Greeting, guestbook_key, DATE_FMT
 
 from google.appengine.ext import testbed
-
-DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 
 def _class_name(fixture_class):
@@ -69,7 +67,7 @@ class FixtureLoader(object):
                         value = d[attr]
 
                         try:
-                            value = datetime.strptime(value, DATE_FMT)
+                            value = datetime.datetime.strptime(value, DATE_FMT)
                         except:
                             pass
 
@@ -105,11 +103,15 @@ class TestLoader(object):
 
         eq_(greeting1.author, 'testuser@example.com')
         eq_(greeting1.content, 'hi')
-        eq_(greeting1.date, datetime.strptime('1971-06-29 04:13:01', DATE_FMT))
+        eq_(greeting1.date, datetime.datetime.strptime('1971-06-29 04:13:01', DATE_FMT))
 
         eq_(greeting2.author, 'testuser@example.com')
         eq_(greeting2.content, 'bye')
-        eq_(greeting2.date, datetime.strptime('1971-06-29 04:13:00', DATE_FMT))
+        eq_(greeting2.date, datetime.datetime.strptime('1971-06-29 04:13:00', DATE_FMT))
+
+        d = greeting1.to_dict()
+        eq_(d['content'], greeting1.content)
+        eq_(d['author'], greeting1.author)
 
     def tearDown(self):
         self.testbed.deactivate()

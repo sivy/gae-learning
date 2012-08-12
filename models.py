@@ -1,8 +1,10 @@
 from google.appengine.api import users
 from google.appengine.ext import db
+import datetime
+import time
 
 SIMPLE_TYPES = (int, long, float, bool, dict, basestring, list)
-
+DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 class DictableModel(db.Model):
     def to_dict(self):
@@ -15,9 +17,10 @@ class DictableModel(db.Model):
                 output[key] = value
             elif isinstance(value, datetime.date):
                 # Convert date/datetime to ms-since-epoch ("new Date()").
-                ms = time.mktime(value.utctimetuple())
-                ms += getattr(value, 'microseconds', 0) / 1000
-                output[key] = int(ms)
+                # ms = time.mktime(value.utctimetuple())
+                # ms += getattr(value, 'microseconds', 0) / 1000
+                # output[key] = int(ms)
+                output[key] = datetime.datetime.strftime(value, DATE_FMT)
             elif isinstance(value, db.GeoPt):
                 output[key] = {'lat': value.lat, 'lon': value.lon}
             elif isinstance(value, db.Model):
