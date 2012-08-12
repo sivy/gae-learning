@@ -83,9 +83,10 @@ class Guestbook(webapp2.RequestHandler):
 
 class GuestbookAPI(webapp2.RequestHandler):
     def get(self):
+        guestbook = self.request.get('guestbook')
         greetings = Greeting.gql("WHERE ANCESTOR IS :1 "
                                 "ORDER BY date DESC LIMIT 10",
-                                guestbook_key())
+                                guestbook_key(guestbook))
 
         # this ought to be a lot smarter
         d = []
