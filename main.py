@@ -31,15 +31,7 @@ jinja_environment = jinja2.Environment(
 from google.appengine.api import users
 from google.appengine.ext import db
 
-
-class Greeting(db.Model):
-    author = db.StringProperty()
-    content = db.StringProperty(multiline=True)
-    date = db.DateTimeProperty(auto_now_add=True)
-
-
-def guestbook_key(guestbook_name=None):
-    return db.Key.from_path('Guestbook', guestbook_name or 'stremor')
+from models import Greeting, guestbook_key
 
 
 class MainPage(webapp2.RequestHandler):
