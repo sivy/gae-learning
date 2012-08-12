@@ -3,7 +3,7 @@ from django.utils import simplejson as json
 from nose.tools import ok_, eq_
 from datetime import datetime
 
-from main import Greeting, guestbook_key
+from models import Greeting, guestbook_key
 
 from google.appengine.ext import testbed
 
@@ -61,7 +61,7 @@ class FixtureLoader(object):
                 for d in data:
                     klass_name = _class_name(d['model'])
 
-                    m = __import__('main')
+                    m = __import__('models')
                     klass = getattr(m, klass_name)
                     instance = klass(parent=guestbook_key('test'))
 

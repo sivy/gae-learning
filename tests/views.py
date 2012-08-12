@@ -1,7 +1,10 @@
 import os
 
 from webtest import TestApp
-from main import app, Greeting, guestbook_key
+from main import app
+
+from models import guestbook_key, Greeting
+
 from nose.tools import eq_, ok_
 
 from google.appengine.ext import testbed
