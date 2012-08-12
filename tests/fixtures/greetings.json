@@ -1,11 +1,11 @@
 [{
-    "model": "greeting",
+    "model": "Guestbook:test::greeting",
     "content": "hi",
     "author": "testuser@example.com",
     "date": "1971-06-29 04:13:01"
 },
 {
-    "model": "greeting",
+    "model": "Guestbook:test::greeting",
     "content": "bye",
     "author": "testuser@example.com",
     "date": "1971-06-29 04:13:00"
