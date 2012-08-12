@@ -9,17 +9,19 @@ from google.appengine.ext import testbed
 from main import app
 from models import guestbook_key, Greeting
 
-from loader import FixtureLoader
+from fixture import FixtureLoader
 
 
-class TestIndex(object):
-
+class TestbedTest(object):
     def setUp(self):
         self.testapp = TestApp(app)
         self.testbed = testbed.Testbed()
         self.testbed.activate()
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_user_stub()
+
+
+class TestIndex(TestbedTest):
 
     def test_index(self):
         response = self.testapp.get('/stremor')
@@ -39,14 +41,7 @@ class TestIndex(object):
         self.testbed.deactivate()
 
 
-class TestGreetings(object):
-
-    def setUp(self):
-        self.testapp = TestApp(app)
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
-        self.testbed.init_datastore_v3_stub()
-        self.testbed.init_user_stub()
+class TestGreetings(TestbedTest):
 
     def test_post_greeting(self):
         response = self.testapp.post('/sign', {'guestbook_name': 'test', 'content': 'hi'})
@@ -91,7 +86,7 @@ class TestAPI(object):
         self.loader.load_data()
 
     def test_get_greetings(self):
-        response = self.testapp.get('/api/greetings.json')
+        response = self.testapp.get('/api/greetings.json?guestbook=test')
 
         eq_(response.status, '200 OK')
         eq_(response.headers.get('Content-Type'), 'application/json')
