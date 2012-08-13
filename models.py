@@ -1,12 +1,12 @@
 from google.appengine.api import users
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import datetime
 import time
 
 SIMPLE_TYPES = (int, long, float, bool, dict, basestring, list)
 DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
-class DictableModel(db.Model):
+class DictableModel(ndb.Model):
     def to_dict(self):
         output = {}
 
@@ -21,9 +21,9 @@ class DictableModel(db.Model):
                 # ms += getattr(value, 'microseconds', 0) / 1000
                 # output[key] = int(ms)
                 output[key] = datetime.datetime.strftime(value, DATE_FMT)
-            elif isinstance(value, db.GeoPt):
+            elif isinstance(value, ndb.GeoPt):
                 output[key] = {'lat': value.lat, 'lon': value.lon}
-            elif isinstance(value, db.Model):
+            elif isinstance(value, ndb.Model):
                 output[key] = to_dict(value)
             else:
                 raise ValueError('cannot encode ' + repr(prop))
@@ -32,10 +32,10 @@ class DictableModel(db.Model):
 
 
 class Greeting(DictableModel):
-    author = db.StringProperty()
-    content = db.StringProperty(multiline=True)
-    date = db.DateTimeProperty(auto_now_add=True)
+    author = ndb.StringProperty()
+    content = ndb.StringProperty()
+    date = ndb.DateTimeProperty(auto_now_add=True)
 
 
 def guestbook_key(guestbook_name=None):
-    return db.Key.from_path('Guestbook', guestbook_name or 'stremor')
+    return ndb.Key('Guestbook', guestbook_name or 'test')

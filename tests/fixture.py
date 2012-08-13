@@ -2,20 +2,26 @@ import os
 from django.utils import simplejson as json
 import datetime
 
-from google.appengine.ext import db
+from google.appengine.ext import ndb
+from google.appengine.ext import testbed
+
 
 DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
+import logging
+log = logging.getLogger(__name__)
 
-def _class_name(fixture_class):
-    return fixture_class.split('::')[1].title().replace('_', '')
+def _class_name(data):
+    return data['model'].title().replace('_', '')
 
 
 # this is a stopgap until I get a better idea :-(
-def _parent_key(fixture_class):
-    parent, klass = fixture_class.split('::')
-    bits = parent.split(':')
-    return db.Key.from_path(bits[0], bits[1])
+def _ancestor_key(data):
+    if 'ancestors' in data:
+        pairs = [(pair['model'], pair['key']) for pair in data['ancestors']]
+        print pairs
+        return ndb.Key(pairs=pairs)
+    return None
 
 
 def _get_fixtures_dir(file):
@@ -31,10 +37,10 @@ class FixtureLoader(object):
             - text properties
             - integer properties
 
-        class Greeting(db.Model):
-           author = db.StringProperty()
-           content = db.StringProperty(multiline=True)
-           date = db.DateTimeProperty(auto_now_add=True)
+        class Greeting(ndb.Model):
+           author = ndb.StringProperty()
+           content = ndb.StringProperty()
+           date = ndb.DateTimeProperty(auto_now_add=True)
 
         {
             'model': 'ParentName:parent_value::model_name',
@@ -47,9 +53,16 @@ class FixtureLoader(object):
     def __init__(self):
         self.fixtures_dir = _get_fixtures_dir(__file__)
 
-    def load_data(self):
+    def file_list(self, files):
+        if hasattr(self, 'fixtures'):
+            file_list = [file for file in files if file in self.fixtures]
+        else:
+            file_list = files
+        return file_list
+
+    def load_data(self, fixtures=None):
         for root, dirs, files in os.walk(self.fixtures_dir):
-            for f in files:
+            for f in self.file_list(files):
                 fullpath = os.path.join(root, f)
 
                 data_str = open(fullpath).read()
@@ -58,18 +71,21 @@ class FixtureLoader(object):
                 try:
                     data = json.loads(data_str)
                 except Exception, e:
-                    print e
+                    log.exception(e)
 
                 # where do we load classes from?
 
                 for d in data:
-                    klass_name = _class_name(d['model'])
-                    parent_key = _parent_key(d['model'])
-
+                    klass_name = _class_name(d)
+                    ancestor_key = _ancestor_key(d)
+                    log.info(ancestor_key)
                     m = __import__('models')
                     klass = getattr(m, klass_name)
 
-                    instance = klass(parent=parent_key)
+                    log.info(klass)
+
+                    # instance = klass(parent=ancestor_key)
+                    instance = klass()
 
                     for attr in [attr for attr in d.keys() if attr != 'model']:
                         value = d[attr]
@@ -82,3 +98,14 @@ class FixtureLoader(object):
                         instance.__setattr__(attr, value)
 
                     instance.put()
+
+
+class FixtureTestClass(object):
+    def __init__(self):
+        self.testbed = testbed.Testbed()
+        self.testbed.activate()
+        self.testbed.init_datastore_v3_stub()
+
+        if type(self.fixtures) == list:
+            self.loader = FixtureLoader()
+            self.loader.load_data(fixtures=self.fixtures)

@@ -29,7 +29,7 @@ jinja_environment = jinja2.Environment(
         + './templates'))
 
 from google.appengine.api import users
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 
 from models import Greeting, guestbook_key
 

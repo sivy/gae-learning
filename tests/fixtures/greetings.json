@@ -1,5 +1,8 @@
 [{
-    "model": "Guestbook:test::greeting",
+    "model": "greeting",
+    "ancestors": [
+        {"model": "Guestbook", "key": "test"}
+    ],
     "content": "hi",
     "author": "testuser@example.com",
     "date": "1971-06-29 04:13:01"
